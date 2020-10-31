@@ -1,0 +1,42 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+jobs:
+- job: 'Deploy'
+  displayName: 'Deploy to Azure'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:  
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '6.x'
+  - task: Npm@1    
+    inputs:
+      command: 'custom'
+      customCommand: 'install -g @angular/cli'
+  - task: Npm@1
+    displayName: 'Install dependencies'
+    inputs:
+      command: 'install'
+  - task: Npm@1
+    displayName: 'Production build'
+    inputs:
+      command: 'custom'
+      customCommand: 'run build'
+  - task: AzureRmWebAppDeployment@4
+    inputs:
+      ConnectionType: 'AzureRM'
+      azureSubscription: 'Visual Studio Enterprise(e0403c25-be17-4e0d-9d9f-0ad95de95075)'
+      appType: 'webApp'
+      WebAppName: 'veganstartpagina'
+      deployToSlotOrASE: true
+      ResourceGroupName: 'VeganStartPagina'
+      SlotName: 'production'
+      VirtualApplication: 'VeganStartPagina'
+      packageForLinux: '$(System.DefaultWorkingDirectory)/dist/veganstartpagina'
+    
